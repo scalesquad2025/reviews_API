@@ -1,34 +1,28 @@
 const fs = require('fs');
 const csv = require('csv-parser');
 const path = require('path');
-const db = require('../database/db.js'); 
+const db = require('../database/db.js');
 const pgp = require('pg-promise')();
 
 const batch = [];
 const batchSize = 4;
 
-const seedReviews = async () => {
+const seedProducts = async () => {
   try {
     console.log('Starting database seeding...');
 
-    const reviewsPath = path.join(__dirname, '../data/reviews.csv');
-    const fileStream = fs.createReadStream(reviewsPath);
+    const productsPath = path.join(__dirname, '../data/product.csv');
+    const fileStream = fs.createReadStream(productsPath);
 
     fileStream.pipe(csv({ separator: ',' }))
       .on('data', async (row) => {
+
+        // console.log('ROW', row)
+
         const parsedRow = {
-          product_id: parseInt(row.product_id),
-          rating: parseInt(row.rating),
-          date: new Date(parseInt(row.date)).toISOString().replace('T', ' ').replace('Z', ''),
-          summary: row.summary,
-          body: row.body,
-          recommend: row.recommend === 'true',
-          reported: row.reported === 'true',
-          reviewer_name: row.reviewer_name,
-          reviewer_email: row.reviewer_email,
-          response: row.response === 'null' ? null : row.response,
-          helpfulness: parseInt(row.helpfulness),
-        };
+          id: parseInt(row.id),
+          name: row.name
+        }
 
         batch.push(parsedRow);
 
@@ -66,18 +60,9 @@ const seedReviews = async () => {
 
 const insertToDatabase = async (batch) => {
   const columns = new pgp.helpers.ColumnSet([
-    'product_id',
-    'rating',
-    'date',
-    'summary',
-    'body',
-    'recommend',
-    'reported',
-    'reviewer_name',
-    'reviewer_email',
-    'response',
-    'helpfulness',
-  ], { table: 'reviews' });
+    'id',
+    'name'
+  ], { table: 'products' });
 
   const query = pgp.helpers.insert(batch, columns);
 
@@ -91,4 +76,4 @@ const insertToDatabase = async (batch) => {
 };
 
 
-seedReviews();
+seedProducts();

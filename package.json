@@ -26,6 +26,8 @@
     "@reduxjs/toolkit": "^2.5.0",
     "axios": "^1.7.9",
     "babel-jest": "^29.7.0",
+    "csv": "^6.3.11",
+    "csv-parser": "^3.2.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "identity-obj-proxy": "^3.0.0",
