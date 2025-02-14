@@ -63,9 +63,16 @@ const insertToDatabase = async (batch) => {
   );
 
   try {
+    // make a set with ids from batch
     const ids = new Set(batch.map(row => row.id));
+
+    // query for ids that exist in db already
     const existingRows = await db.any('SELECT id FROM products WHERE id IN ($1:csv)', [Array.from(ids)]);
+
+    // make a set from query result
     const existingIds = new Set(existingRows.map(row => row.id));
+
+    // filter out existing ids to add non-existing to db
     const rowsToAdd = batch.filter(row => !existingIds.has(row.id));
 
     if (rowsToAdd.length > 0) {

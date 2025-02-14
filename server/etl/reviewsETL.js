@@ -67,7 +67,7 @@ const seedReviews = async () => {
 
 const insertToDatabase = async (batch) => {
   const columns = new pgp.helpers.ColumnSet([
-    'id'
+    'id',
     'product_id',
     'rating',
     'date',
