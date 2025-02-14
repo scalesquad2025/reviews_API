@@ -24,21 +24,21 @@ CREATE TABLE reviews (
 -- id,review_id,url
 CREATE TABLE review_photos (
   id SERIAL PRIMARY KEY,
-    review_id INT NOT NULL REFERENCES reviews(id) ON DELETE CASCADE,
-    url VARCHAR NOT NULL
+  review_id INT NOT NULL REFERENCES reviews(id) ON DELETE CASCADE,
+  url VARCHAR NOT NULL
 );
 
 -- id,characteristic_id,review_id,value
 CREATE TABLE review_characteristics (
   id SERIAL PRIMARY KEY,
-    review_id INT NOT NULL REFERENCES reviews(id) ON DELETE CASCADE,
-    characteristic_id INT REFERENCES characteristics(id),
-    name TEXT
+  review_id INT NOT NULL REFERENCES reviews(id) ON DELETE CASCADE,
+  characteristic_id INT REFERENCES characteristics(id),
+  name TEXT
 );
 
 -- id,product_id,name
 CREATE TABLE characteristics (
   id SERIAL PRIMARY KEY,
-    value FLOAT,
-    product_id INT NOT NULL REFERENCES products(id) ON DELETE CASCADE
+  value FLOAT,
+  product_id INT NOT NULL REFERENCES products(id) ON DELETE CASCADE
 );

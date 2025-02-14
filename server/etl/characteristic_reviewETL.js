@@ -7,12 +7,12 @@ const pgp = require('pg-promise')();
 const batch = [];
 const batchSize = 10000;
 
-const seedProducts = async () => {
+const seedReviewCharacteristics = async () => {
   try {
     console.log('Starting database seeding...');
 
-    const productsPath = path.join(__dirname, '../data/product.csv');
-    const fileStream = fs.createReadStream(productsPath);
+    const reviewCharacteristicsPath = path.join(__dirname, '../data/characteristic_reviews.csv');
+    const fileStream = fs.createReadStream(reviewCharacteristicsPath);
 
     fileStream.pipe(csv({ separator: ',' }))
       .on('data', async (row) => {
@@ -57,28 +57,21 @@ const seedProducts = async () => {
 };
 
 const insertToDatabase = async (batch) => {
-  const columns = new pgp.helpers.ColumnSet(
-    ['id', 'name'],
-    { table: 'products' }
-  );
+  const columns = new pgp.helpers.ColumnSet([
+    'review_id',
+    'characterictic_id'
+  ], { table: 'review_characteristics' });
+
+  const query = pgp.helpers.insert(batch, columns);
 
   try {
-    const ids = new Set(batch.map(row => row.id));
-    const existingRows = await db.any('SELECT id FROM products WHERE id IN ($1:csv)', [Array.from(ids)]);
-    const existingIds = new Set(existingRows.map(row => row.id));
-    const rowsToAdd = batch.filter(row => !existingIds.has(row.id));
-
-    if (rowsToAdd.length > 0) {
-      const query = pgp.helpers.insert(rowsToAdd, columns);
-      await db.none(query);
-      console.log(`${rowsToAdd.length} new rows inserted.`);
-    } else {
-      console.log('No new rows to insert.');
-    }
+    await db.none(query);
+    console.log('Batch added successfully');
   } catch (err) {
     console.error('Error inserting batch:', err.message);
+    throw err;
   }
 };
 
 
-seedProducts();
+seedReviewCharacteristics();
