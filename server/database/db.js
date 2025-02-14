@@ -1,18 +1,15 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../../.env') });
+const pgp = require('pg-promise')();
 
-const { Client } = require('pg');
-
-const client = new Client({
-  user: process.env.DB_USER,
+const dbConfig = {
   host: process.env.DB_HOST,
-  database: process.env.DB_DATABASE,
   port: process.env.DB_PORT,
-});
+  database: process.env.DB_DATABASE,
+  user: process.env.DB_USER,
+  password: String(process.env.DB_PASSWORD || '')
+};
 
-client.connect()
-  .then(() => console.log('Connected to PostgreSQL database'))
-  .catch(err => console.error('Connection error: ', err.stack))
+const db = pgp(dbConfig);
 
-
-
-module.exports = client;
+module.exports = db;
