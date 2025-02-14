@@ -60,7 +60,7 @@ const insertToDatabase = async (batch) => {
 
   try{
     const ids = new Set(batch.map(row => row.id));
-    const existingRows = await db.any('SELECT id FROM reviews_photos WHERE id IN ($1:csv', Array.from[ids]);
+    const existingRows = await db.any('SELECT id FROM reviews_photos WHERE id IN ($1:csv)', [Array.from(ids)]);
     const existingIds = new Set(existingRows.map(row => row.id));
     const rowsToAdd = batch.filter(row => !existingIds.has(row.id));
 
@@ -72,7 +72,7 @@ const insertToDatabase = async (batch) => {
       console.log('No new rows to insert.');
     }
   }catch (err){
-    console.error('Error inserting batch: , 'err);
+    console.error('Error inserting batch: ', err);
   }
 }
 
