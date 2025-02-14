@@ -1,11 +1,11 @@
 const fs = require('fs');
 const csv = require('csv-parser');
 const path = require('path');
-const db = require('../database/db.js'); 
+const db = require('../database/db.js');
 const pgp = require('pg-promise')();
 
 const batch = [];
-const batchSize = 4;
+const batchSize = 10000;
 
 const seedReviews = async () => {
   try {
@@ -17,6 +17,7 @@ const seedReviews = async () => {
     fileStream.pipe(csv({ separator: ',' }))
       .on('data', async (row) => {
         const parsedRow = {
+          id: parseInt(row.id),
           product_id: parseInt(row.product_id),
           rating: parseInt(row.rating),
           date: new Date(parseInt(row.date)).toISOString().replace('T', ' ').replace('Z', ''),
@@ -66,6 +67,7 @@ const seedReviews = async () => {
 
 const insertToDatabase = async (batch) => {
   const columns = new pgp.helpers.ColumnSet([
+    'id'
     'product_id',
     'rating',
     'date',
@@ -82,8 +84,17 @@ const insertToDatabase = async (batch) => {
   const query = pgp.helpers.insert(batch, columns);
 
   try {
-    await db.none(query);
-    console.log('Batch added successfully');
+    const ids = new Set(batch.map(row => row.id));
+    const existingRows = await db.any('SELECT id FROM reviews WHERE id IN ($1:csv', Array.from(ids));
+    const existingIds = new Set(existingRows.map(row => row.id));
+    const rowsToAdd = batch.filter(row => !existingIds.has(row.id));
+
+    if(rowsToAdd.length){
+      await db.none(query);
+      console.log(`${rowsToAdd.length} new rows inserted.`);
+    } else {
+      console.log('No new rows to insert')
+    }
   } catch (err) {
     console.error('Error inserting batch:', err.message);
     throw err;
@@ -92,3 +103,7 @@ const insertToDatabase = async (batch) => {
 
 
 seedReviews();
+
+
+
+// TO DO -- DELETE ALL REVIEWS AND RE-SEED

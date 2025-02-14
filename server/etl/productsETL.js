@@ -29,7 +29,7 @@ const seedProducts = async () => {
           try {
             await insertToDatabase(batch);
             console.log(`Inserted ${batchSize} rows`);
-            batch.length = 0;
+            batch = [];
             fileStream.resume();
           } catch (err) {
             console.error('Error inserting batch:', err);
@@ -41,7 +41,7 @@ const seedProducts = async () => {
         console.error('Error reading CSV file:', err);
       })
       .on('end', async () => {
-        if (batch.length > 0) {
+        if (batch.length) {
           try {
             await insertToDatabase(batch);
             console.log('Final batch inserted.');

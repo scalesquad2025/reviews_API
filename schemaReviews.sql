@@ -7,7 +7,7 @@ CREATE TABLE products (
 
 -- id,product_id,rating,date,summary,body,recommend,reported,reviewer_name,reviewer_email,response,helpfulness
 CREATE TABLE reviews (
-  id SERIAL PRIMARY KEY,
+  id PRIMARY KEY,
   product_id INT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
   summary TEXT,
   recommend BOOLEAN NOT NULL,
@@ -23,14 +23,14 @@ CREATE TABLE reviews (
 
 -- id,review_id,url
 CREATE TABLE review_photos (
-  id SERIAL PRIMARY KEY,
+  id PRIMARY KEY,
   review_id INT NOT NULL REFERENCES reviews(id) ON DELETE CASCADE,
   url VARCHAR NOT NULL
 );
 
 -- id,characteristic_id,review_id,value
 CREATE TABLE review_characteristics (
-  id SERIAL PRIMARY KEY,
+  id PRIMARY KEY,
   review_id INT NOT NULL REFERENCES reviews(id) ON DELETE CASCADE,
   characteristic_id INT REFERENCES characteristics(id),
   name TEXT
@@ -38,7 +38,7 @@ CREATE TABLE review_characteristics (
 
 -- id,product_id,name
 CREATE TABLE characteristics (
-  id SERIAL PRIMARY KEY,
+  id PRIMARY KEY,
   value FLOAT,
   product_id INT NOT NULL REFERENCES products(id) ON DELETE CASCADE
 );
