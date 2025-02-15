@@ -43,3 +43,7 @@ CREATE TABLE characteristics (
   name VARCHAR(255),
   product_id INT NOT NULL REFERENCES products(id) ON DELETE CASCADE
 );
+
+
+
+
