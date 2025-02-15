@@ -52,6 +52,39 @@ app.get('/reviews/:id', async (req, res) => {
   }
 });
 
+
+app.get('/reviews/meta/:id', async (req, res) => {
+  const id = req.params.id;
+  if (!id) return res.status(400).send('ID required');
+  try {
+    // TO DO --> query for meta data, characteristics...
+    // const query = 'SELECT * FROM reviews WHERE product_id = $1';
+    const response = await db.any(query, [id]);
+    if (response.length === 0) return res.status(400).send('Reviews meta data not found');
+    res.status(200).send(response);
+  } catch (err) {
+    console.error(`Error getting reviews meta for product id: ${id}`, err);
+    res.status(500).send(err);
+  }
+});
+
+
+app.post('/reviews/:id', async(req, res) => {
+
+});
+
+
+app.put('/reviews/:review_id/helpful', async (req, res) => {
+
+});
+
+
+app.put('/reviews/:review_id/report', async (req, res) => {
+
+});
+
+
+
 app.listen(3000, () => {
   console.log('currently listening on port 3000');
 })
