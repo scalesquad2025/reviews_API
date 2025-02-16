@@ -34,7 +34,6 @@ CREATE TABLE review_characteristics (
   review_id INT NOT NULL REFERENCES reviews(id) ON DELETE CASCADE,
   characteristic_id INT REFERENCES characteristics(id),
   value FLOAT
-
 );
 
 -- id,product_id,name
@@ -44,6 +43,9 @@ CREATE TABLE characteristics (
   product_id INT NOT NULL REFERENCES products(id) ON DELETE CASCADE
 );
 
+characteristics.id
+characteristics.name
+review_characteristics.value
 
 
 
