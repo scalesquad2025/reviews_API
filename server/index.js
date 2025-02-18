@@ -27,7 +27,7 @@ app.get('/products/:id/styles', (req, res) => {
 });
 
 app.get('/reviews/:id', async (req, res) => {
-  const id = req.params.id;
+  const id = Number(req.params.id);
   if (!id) return res.status(400).send('ID required');
   try {
     // const page = parseInt(req.query.page) || 1;
@@ -84,7 +84,7 @@ app.get('/reviews/:id', async (req, res) => {
 
 
 app.get('/reviews/meta/:id', async (req, res) => {
-  const id = req.params.id;
+  const id = Number(req.params.id);
   if (!id) return res.status(400).send('ID required');
   try {
     const reviewQuery = `SELECT
@@ -155,14 +155,14 @@ app.post('/reviews/:id', async (req, res) => {
 
 
 app.put('/reviews/:review_id/helpful', async (req, res) => {
-  const reviewId = req.params.id;
-  // console.log('req', req.body);
-  const { helpfulness } = req.body;
+  const reviewId = Number(req.params.review_id);
 
   try {
-    const updateQuery = `UPDATE reviews SET helpfulness = $1 WHERE id = $2 RETURNING *`
-    const updatedHelpfulness = await db.one(updateQuery, [helpfulness, reviewId]);
-    res.status(200).send(updatedHelpfulness);
+    const updateQuery = `UPDATE reviews SET helpfulness = helpfulness + 1 WHERE id = $1`
+    const updatedHelpfulness = await db.result(updateQuery, [reviewId]);
+
+    if (updatedHelpfulness.rowCount === 0) return res.status(404).send({ message: 'Error marking a review helpful' });
+    res.status(204).end();
   } catch (err) {
     console.error(`Error updating review helpfulness`, err);
     res.status(500).send(err);
@@ -172,15 +172,13 @@ app.put('/reviews/:review_id/helpful', async (req, res) => {
 
 app.put('/reviews/:review_id/report', async (req, res) => {
   const reviewId = Number(req.params.review_id);
-  console.log('id', typeof reviewId)
-  // const { reported } = req.body;
-
-  const reported  = true;
 
   try {
-    const updateQuery = `UPDATE reviews SET reported = $1 WHERE id = $2`
-    const updatedReport = await db.one(updateQuery, [reported, reviewId]);
-    res.status(200).send(updatedReport);
+    const updateQuery = `UPDATE reviews SET reported = TRUE WHERE id = $1`
+    const updatedReport = await db.result(updateQuery, [reviewId]);
+
+    if (updatedReport.rowCount === 0) return res.status(404).send({ message: 'Error reporting a review' })
+    res.status(204).end();
   } catch (err) {
     console.error(`Error reporting a review`, err);
     res.status(500).send(err);
