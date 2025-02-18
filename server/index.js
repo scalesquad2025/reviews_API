@@ -100,39 +100,42 @@ app.get('/reviews/meta/:id', async (req, res) => {
 
     const characRes = await db.any(characQuery, [id]);
 
-    const characIds = characRes.map(char => char.id);
+    const characIds = characRes.map(char => Number(char.id));
     const reviewCharacQuery = `SELECT
     id,
+    characteristic_id,
     value
     FROM review_characteristics
     WHERE characteristic_id = ANY($1)`
 
     const reviewCharacRes = await db.any(reviewCharacQuery, [characIds]);
 
-    console.log('REVCHAR', reviewCharacRes);
-    console.log('CHAR', characRes);
 
+    const ratings = {};
+    for (let review of reviewRes) {
+      if (!ratings[review.rating]) ratings[review.rating] = 1;
+      else ratings[review.rating]++;
+    };
 
+    const recommended = {};
+    for (let review of reviewRes) {
+      let key = Number(review.recommend);
+      if (!recommended[key]) recommended[key] = 1;
+      else recommended[key]++;
+    };
 
-    const charchar = {};
-
+    const characteristics = {};
     for (let char of characRes) {
       const matches = reviewCharacRes.filter(revChar => revChar.characteristic_id === char.id);
-
       const average = matches.length ? matches.reduce((sum, revChar) => sum + revChar.value, 0) / matches.length : 0;
+      characteristics[char.name] = { id: char.id, value: average.toFixed(4) };
+    };
 
-      charchar[char.name] = { id: char.id, value: average.toFixed(4) };
-    }
-
-    console.log(charchar, '**CHAR')
-
-
-
-
-    // if (response.length === 0) return res.status(400).send('Reviews meta data not found');
     res.status(200).json({
       product_id: id,
-      reviewRes
+      ratings: ratings,
+      recommended: recommended,
+      characteristics: characteristics
     });
   } catch (err) {
     console.error(`Error getting reviews meta for product id: ${id}`, err);
