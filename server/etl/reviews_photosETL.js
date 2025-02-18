@@ -5,7 +5,7 @@ const db = require('../database/db.js');
 const pgp = require('pg-promise')();
 
 let batch = [];
-const batchSize = 10000;
+const batchSize = 40000;
 
 const seedReviewPhotos = async () => {
   try {

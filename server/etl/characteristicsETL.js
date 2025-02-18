@@ -6,7 +6,7 @@ const pgp = require('pg-promise')();
 
 
 let batch = [];
-const batchSize = 20000;
+const batchSize = 40000;
 
 const seedCharacteristics = async () => {
   try {

@@ -147,10 +147,51 @@ app.get('/reviews/meta/:id', async (req, res) => {
 });
 
 
-app.post('/reviews/:id', async (req, res) => {
-  const id = req.params.id;
+app.post('/reviews', async (req, res) => {
+  console.log('REQ', req.body);
 
-  // console.log('REQ', req.body)
+  const review = {
+    product_id: req.body.product_id,
+    rating: req.body.rating,
+    summary: req.body.summary,
+    body: req.body.body,
+    recommend: req.body.recommend,
+    reviewer_name: req.body.reviewer_name,
+    reviewer_email: req.body.reviewer_email,
+  };
+
+  console.log('REVIEW', review);
+
+  try {
+    const newReviewQuery = `
+  INSERT INTO reviews(
+    product_id,
+    rating,
+    summary,
+    body,
+    recommend,
+    reviewer_name,
+    reviewer_email
+  )
+  VALUES ($1, $2, $3, $4, $5, $6, $7)
+  RETURNING *;
+ `;
+
+    const postReview = await db.one(newReviewQuery, [
+      review.product_id,
+      review.rating,
+      review.summary,
+      review.body,
+      review.recommend,
+      review.reviewer_name,
+      review.reviewer_email
+    ]);
+
+    res.status(201).send({ message: 'Successfully added a review', review });
+  } catch (err) {
+    console.error('Error adding a review', err);
+    res.status(500).send(err);
+  }
 });
 
 
@@ -159,7 +200,7 @@ app.put('/reviews/:review_id/helpful', async (req, res) => {
 
   try {
     const updateQuery = `UPDATE reviews SET helpfulness = helpfulness + 1 WHERE id = $1`
-    const updatedHelpfulness = await db.result(updateQuery, [reviewId]);
+    const updatedHelpfulness = await db.none(updateQuery, [reviewId]);
 
     if (updatedHelpfulness.rowCount === 0) return res.status(404).send({ message: 'Error marking a review helpful' });
     res.status(204).end();
@@ -175,7 +216,7 @@ app.put('/reviews/:review_id/report', async (req, res) => {
 
   try {
     const updateQuery = `UPDATE reviews SET reported = TRUE WHERE id = $1`
-    const updatedReport = await db.result(updateQuery, [reviewId]);
+    const updatedReport = await db.none(updateQuery, [reviewId]);
 
     if (updatedReport.rowCount === 0) return res.status(404).send({ message: 'Error reporting a review' })
     res.status(204).end();

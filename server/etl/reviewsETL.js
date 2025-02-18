@@ -85,7 +85,8 @@ const insertToDatabase = async (batch) => {
 
   try {
     const ids = new Set(batch.map(row => row.id));
-    const existingRows = await db.any('SELECT id FROM reviews WHERE id = ANY($1)', [Array.from(ids)]); const existingIds = new Set(existingRows.map(row => row.id));
+    const existingRows = await db.any('SELECT id FROM reviews WHERE id = ANY($1)', [Array.from(ids)]);
+    const existingIds = new Set(existingRows.map(row => row.id));
     const rowsToAdd = batch.filter(row => !existingIds.has(row.id));
 
     if (rowsToAdd.length) {

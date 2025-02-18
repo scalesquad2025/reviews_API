@@ -4,7 +4,7 @@ const path = require('path');
 const db = require('../database/db.js');
 const pgp = require('pg-promise')();
 
-const batch = [];
+let batch = [];
 const batchSize = 10000;
 
 const seedProducts = async () => {
