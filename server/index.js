@@ -44,7 +44,9 @@ app.get('/reviews/:id', async (req, res) => {
     date,
     reviewer_name,
     helpfulness
-    FROM reviews WHERE product_id = $1`;
+    FROM reviews
+    WHERE product_id = $1
+    AND reported = FALSE`;
 
     const reviewRes = await db.any(query, [id]);
     const reviewsIds = reviewRes.map(review => review.review_id);
@@ -67,7 +69,7 @@ app.get('/reviews/:id', async (req, res) => {
             url: element.url
           }))
       }
-    })
+    });
 
     if (!reviewRes.length) return res.status(400).send('Reviews not found');
     res.status(200).json({
@@ -101,6 +103,7 @@ app.get('/reviews/meta/:id', async (req, res) => {
     const characRes = await db.any(characQuery, [id]);
 
     const characIds = characRes.map(char => Number(char.id));
+
     const reviewCharacQuery = `SELECT
     id,
     characteristic_id,
@@ -145,17 +148,43 @@ app.get('/reviews/meta/:id', async (req, res) => {
 
 
 app.post('/reviews/:id', async (req, res) => {
+  const id = req.params.id;
 
+  // console.log('REQ', req.body)
 });
 
 
 app.put('/reviews/:review_id/helpful', async (req, res) => {
+  const reviewId = req.params.id;
+  // console.log('req', req.body);
+  const { helpfulness } = req.body;
 
+  try {
+    const updateQuery = `UPDATE reviews SET helpfulness = $1 WHERE id = $2 RETURNING *`
+    const updatedHelpfulness = await db.one(updateQuery, [helpfulness, reviewId]);
+    res.status(200).send(updatedHelpfulness);
+  } catch (err) {
+    console.error(`Error updating review helpfulness`, err);
+    res.status(500).send(err);
+  }
 });
 
 
 app.put('/reviews/:review_id/report', async (req, res) => {
+  const reviewId = Number(req.params.review_id);
+  console.log('id', typeof reviewId)
+  // const { reported } = req.body;
 
+  const reported  = true;
+
+  try {
+    const updateQuery = `UPDATE reviews SET reported = $1 WHERE id = $2`
+    const updatedReport = await db.one(updateQuery, [reported, reviewId]);
+    res.status(200).send(updatedReport);
+  } catch (err) {
+    console.error(`Error reporting a review`, err);
+    res.status(500).send(err);
+  }
 });
 
 
