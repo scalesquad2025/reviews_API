@@ -149,41 +149,41 @@ app.get('/reviews/meta/:id', async (req, res) => {
 
 // ADD NEW REVIEW
 app.post('/reviews', async (req, res) => {
-  // const review = {
-  //   product_id: req.body.product_id,
-  //   rating: req.body.rating,
-  //   summary: req.body.summary,
-  //   body: req.body.body,
-  //   recommend: req.body.recommend,
-  //   reviewer_name: req.body.reviewer_name,
-  //   reviewer_email: req.body.reviewer_email,
-  //   photos: req.body.photos,
-  //   characteristics: req.body.characteristics
-  // };
-
   const review = {
-    product_id: 40349,
-    rating: 5,
-    summary: "Great product",
-    body: "This nice.",
-    recommend: true,
-    reviewer_name: "Mac Demo",
-    reviewer_email: "demo@demo.com",
-    photos: [
-      "https://example.com/photo1.jpg",
-      "https://example.com/photo2.jpg"
-    ],
-    characteristics: {
-      "Fit": {
-        "id": 135005,
-        "value": 5
-      },
-      "Length": {
-        "id": 135006,
-        "value": 4
-      }
-    }
-  }
+    product_id: req.body.product_id,
+    rating: req.body.rating,
+    summary: req.body.summary,
+    body: req.body.body,
+    recommend: req.body.recommend,
+    reviewer_name: req.body.reviewer_name,
+    reviewer_email: req.body.reviewer_email,
+    photos: req.body.photos,
+    characteristics: req.body.characteristics
+  };
+
+  // const review = {
+  //   product_id: 40349,
+  //   rating: 5,
+  //   summary: "Great product",
+  //   body: "This nice.",
+  //   recommend: true,
+  //   reviewer_name: "Mac Demo",
+  //   reviewer_email: "demo@demo.com",
+  //   photos: [
+  //     "https://example.com/photo1.jpg",
+  //     "https://example.com/photo2.jpg"
+  //   ],
+  //   characteristics: {
+  //     "Fit": {
+  //       "id": 135005,
+  //       "value": 5
+  //     },
+  //     "Length": {
+  //       "id": 135006,
+  //       "value": 4
+  //     }
+  //   }
+  // }
 
   try {
     const newReviewQuery = `INSERT INTO
@@ -209,7 +209,7 @@ app.post('/reviews', async (req, res) => {
       review.reviewer_email
     ]);
 
-    console.log('POST', postReview)
+    // console.log('POST', postReview)
 
     // insert photos
     if (review.photos) {
@@ -256,7 +256,7 @@ app.put('/reviews/:review_id/helpful', async (req, res) => {
     const updateQuery = `UPDATE reviews SET helpfulness = helpfulness + 1 WHERE id = $1`
     const updatedHelpfulness = await db.none(updateQuery, [reviewId]);
 
-    if (updatedHelpfulness.rowCount === 0) return res.status(404).send({ message: 'Error marking a review helpful' });
+    // if (updatedHelpfulness.rowCount === 0) return res.status(404).send({ message: 'Error marking a review helpful' });
     res.status(204).end();
   } catch (err) {
     console.error(`Error updating review helpfulness`, err);
