@@ -256,7 +256,6 @@ app.put('/reviews/:review_id/helpful', async (req, res) => {
     const updateQuery = `UPDATE reviews SET helpfulness = helpfulness + 1 WHERE id = $1`
     const updatedHelpfulness = await db.none(updateQuery, [reviewId]);
 
-    // if (updatedHelpfulness.rowCount === 0) return res.status(404).send({ message: 'Error marking a review helpful' });
     res.status(204).end();
   } catch (err) {
     console.error(`Error updating review helpfulness`, err);
