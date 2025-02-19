@@ -271,7 +271,6 @@ app.put('/reviews/:review_id/report', async (req, res) => {
     const updateQuery = `UPDATE reviews SET reported = TRUE WHERE id = $1`
     const updatedReport = await db.none(updateQuery, [reviewId]);
 
-    if (updatedReport.rowCount === 0) return res.status(404).send({ message: 'Error reporting a review' })
     res.status(204).end();
   } catch (err) {
     console.error(`Error reporting a review`, err);
