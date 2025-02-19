@@ -26,6 +26,7 @@ app.get('/products/:id/styles', (req, res) => {
   // console.log('GETTING STYLES: ', req.params.id);
 });
 
+// GET ALL REVIEWS FOR A PRODUCT
 app.get('/reviews/:id', async (req, res) => {
   const id = Number(req.params.id);
   if (!id) return res.status(400).send('ID required');
@@ -82,7 +83,7 @@ app.get('/reviews/:id', async (req, res) => {
   }
 });
 
-
+// GET ALL META REVIEWS
 app.get('/reviews/meta/:id', async (req, res) => {
   const id = Number(req.params.id);
   if (!id) return res.status(400).send('ID required');
@@ -146,25 +147,47 @@ app.get('/reviews/meta/:id', async (req, res) => {
   }
 });
 
-
+// ADD NEW REVIEW
 app.post('/reviews', async (req, res) => {
-  console.log('REQ', req.body);
+  // const review = {
+  //   product_id: req.body.product_id,
+  //   rating: req.body.rating,
+  //   summary: req.body.summary,
+  //   body: req.body.body,
+  //   recommend: req.body.recommend,
+  //   reviewer_name: req.body.reviewer_name,
+  //   reviewer_email: req.body.reviewer_email,
+  //   photos: req.body.photos,
+  //   characteristics: req.body.characteristics
+  // };
 
   const review = {
-    product_id: req.body.product_id,
-    rating: req.body.rating,
-    summary: req.body.summary,
-    body: req.body.body,
-    recommend: req.body.recommend,
-    reviewer_name: req.body.reviewer_name,
-    reviewer_email: req.body.reviewer_email,
-  };
-
-  console.log('REVIEW', review);
+    product_id: 40349,
+    rating: 5,
+    summary: "Great product",
+    body: "This nice.",
+    recommend: true,
+    reviewer_name: "Mac Demo",
+    reviewer_email: "demo@demo.com",
+    photos: [
+      "https://example.com/photo1.jpg",
+      "https://example.com/photo2.jpg"
+    ],
+    characteristics: {
+      "Fit": {
+        "id": 135005,
+        "value": 5
+      },
+      "Length": {
+        "id": 135006,
+        "value": 4
+      }
+    }
+  }
 
   try {
-    const newReviewQuery = `
-  INSERT INTO reviews(
+    const newReviewQuery = `INSERT INTO
+    reviews(
     product_id,
     rating,
     summary,
@@ -174,8 +197,7 @@ app.post('/reviews', async (req, res) => {
     reviewer_email
   )
   VALUES ($1, $2, $3, $4, $5, $6, $7)
-  RETURNING *;
- `;
+  RETURNING id, product_id`;
 
     const postReview = await db.one(newReviewQuery, [
       review.product_id,
@@ -187,7 +209,39 @@ app.post('/reviews', async (req, res) => {
       review.reviewer_email
     ]);
 
-    res.status(201).send({ message: 'Successfully added a review', review });
+    console.log('POST', postReview)
+
+    // insert photos
+    if (review.photos) {
+      for (let photo of review.photos) {
+        const photoQuery = `INSERT INTO review_photos (review_id, url) VALUES ($1, $2)`;
+        await db.none(photoQuery, [postReview.id, photo]);
+      }
+    };
+
+    // insert characteristics
+    if (review.characteristics) {
+      for (let characName of Object.keys(review.characteristics)) {
+        // check if characteristics name exists
+        const characNameQuery = `SELECT id FROM characteristics WHERE product_id = $1 AND id = $2`;
+        const characNameRes = await db.oneOrNone(characNameQuery, [postReview.product_id, postReview.id]);
+
+        // add if it doesn't
+        if (!characNameRes) {
+          const insertCharacName = `INSERT INTO characteristics (name, product_id) VALUES ($1, $2)`;
+          await db.none(insertCharacName, [characName, postReview.product_id]);
+        }
+      }
+
+      // insert to review_characteristics
+      for (let characteristic of Object.values(review.characteristics)) {
+        const { id: characteristicsId, value: characteristicsValue } = characteristic;
+        const characteristicsQuery = `INSERT INTO review_characteristics (review_id, characteristic_id, value) VALUES ($1, $2, $3)`
+        await db.none(characteristicsQuery, [postReview.id, characteristicsId, characteristicsValue])
+      }
+    }
+
+    res.status(201).send({ message: 'Successfully added a review' });
   } catch (err) {
     console.error('Error adding a review', err);
     res.status(500).send(err);
