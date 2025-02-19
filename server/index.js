@@ -162,13 +162,13 @@ app.post('/reviews', async (req, res) => {
   };
 
   // const review = {
-  //   product_id: 40349,
+  //   product_id: 1910,
   //   rating: 5,
-  //   summary: "Great product",
+  //   summary: "Vai, Corinthians",
   //   body: "This nice.",
   //   recommend: true,
-  //   reviewer_name: "Mac Demo",
-  //   reviewer_email: "demo@demo.com",
+  //   reviewer_name: "Rodrigo Garro",
+  //   reviewer_email: "rodrigo@garro.com",
   //   photos: [
   //     "https://example.com/photo1.jpg",
   //     "https://example.com/photo2.jpg"
