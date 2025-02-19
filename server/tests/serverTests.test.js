@@ -10,7 +10,6 @@ describe("GET /reviews/:id", () => {
   it("should return all reviews for a product", async () => {
     const res = await request(app).get("/reviews/40349");
     expect(res.statusCode).toBe(200);
-    // console.log('*****RES TEST:', Object.keys(res.body), '*********')
     expect(res.body.results.length).toBeGreaterThan(0);
   });
 
