@@ -4,7 +4,7 @@ const path = require('path');
 const db = require('../database/db.js');
 const pgp = require('pg-promise')();
 
-const batch = [];
+let batch = [];
 const batchSize = 10000;
 
 const seedReviews = async () => {
@@ -38,7 +38,7 @@ const seedReviews = async () => {
           try {
             await insertToDatabase(batch);
             console.log(`Inserted ${batchSize} rows`);
-            batch.length = 0;
+            batch = [];
             fileStream.resume();
           } catch (err) {
             console.error('Error inserting batch:', err);
@@ -81,15 +81,16 @@ const insertToDatabase = async (batch) => {
     'helpfulness',
   ], { table: 'reviews' });
 
-  const query = pgp.helpers.insert(batch, columns);
+
 
   try {
     const ids = new Set(batch.map(row => row.id));
-    const existingRows = await db.any('SELECT id FROM reviews WHERE id IN ($1:csv', Array.from(ids));
+    const existingRows = await db.any('SELECT id FROM reviews WHERE id = ANY($1)', [Array.from(ids)]);
     const existingIds = new Set(existingRows.map(row => row.id));
     const rowsToAdd = batch.filter(row => !existingIds.has(row.id));
 
-    if(rowsToAdd.length){
+    if (rowsToAdd.length) {
+      const query = pgp.helpers.insert(batch, columns);
       await db.none(query);
       console.log(`${rowsToAdd.length} new rows inserted.`);
     } else {
@@ -103,7 +104,3 @@ const insertToDatabase = async (batch) => {
 
 
 seedReviews();
-
-
-
-// TO DO -- DELETE ALL REVIEWS AND RE-SEED

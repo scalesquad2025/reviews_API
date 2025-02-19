@@ -4,7 +4,7 @@ const path = require('path');
 const db = require('../database/db.js');
 const pgp = require('pg-promise')();
 
-const batch = [];
+let batch = [];
 const batchSize = 10000;
 
 const seedProducts = async () => {
@@ -67,8 +67,7 @@ const insertToDatabase = async (batch) => {
     const ids = new Set(batch.map(row => row.id));
 
     // query for ids that exist in db already
-    const existingRows = await db.any('SELECT id FROM products WHERE id IN ($1:csv)', [Array.from(ids)]);
-
+    const existingRows = await db.any('SELECT id FROM products WHERE id = ANY($1)', [Array.from(ids)]);
     // make a set from query result
     const existingIds = new Set(existingRows.map(row => row.id));
 
@@ -84,6 +83,7 @@ const insertToDatabase = async (batch) => {
     }
   } catch (err) {
     console.error('Error inserting batch:', err.message);
+    throw err;
   }
 };
 

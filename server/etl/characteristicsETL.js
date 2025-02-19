@@ -5,8 +5,8 @@ const db = require('../database/db.js');
 const pgp = require('pg-promise')();
 
 
-const batch = [];
-const batchSize = 10000;
+let batch = [];
+const batchSize = 40000;
 
 const seedCharacteristics = async () => {
   try {
@@ -60,9 +60,9 @@ const seedCharacteristics = async () => {
 };
 
 
-const insertToDatabase = (batch) => {
+const insertToDatabase = async (batch) => {
   const columns = new pgp.helpers.ColumnSet(
-    ['id', 'product_id', 'name'], { table: characteristics }
+    ['id', 'product_id', 'name'], { table: 'characteristics' }
   );
 
 
@@ -71,7 +71,7 @@ const insertToDatabase = (batch) => {
     const ids = new Set(batch.map(row => row.id));
 
     // query for ids that exist in db already
-    const existingRows = await db.any('SELECT id FROM products WHERE id IN ($1:csv)', [Array.from(ids)]);
+    const existingRows = await db.any('SELECT id FROM characteristics WHERE id = ANY($1)', [Array.from(ids)]);
 
     // make a set from query result
     const existingIds = new Set(existingRows.map(row => row.id));
@@ -88,7 +88,27 @@ const insertToDatabase = (batch) => {
     }
   } catch (err) {
     console.error('Error inserting batch:', err.message);
+    throw err;
   }
 };
 
+const check = () => {
+
+const seenIds = new Set();
+const duplicateIds = new Set();
+
+batch.forEach(row => {
+  if (seenIds.has(row.id)) {
+    duplicateIds.add(row.id);
+  } else {
+    seenIds.add(row.id);
+  }
+});
+
+console.log('Duplicate IDs in CSV:', Array.from(duplicateIds));
+
+}
+
 seedCharacteristics();
+
+check();

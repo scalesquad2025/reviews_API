@@ -24,7 +24,7 @@ const reviewsSlice = createSlice({
   name: 'reviews',
   initialState,
   reducers: {
-    moreReviews:  (state, action) => {
+    moreReviews: (state, action) => {
       state.renderedReviews = state.renderedReviews.concat(action.payload);
     },
     filterReviews: (state, action) => {
