@@ -209,8 +209,6 @@ app.post('/reviews', async (req, res) => {
       review.reviewer_email
     ]);
 
-    // console.log('POST', postReview)
-
     // insert photos
     if (review.photos) {
       for (let photo of review.photos) {

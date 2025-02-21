@@ -1,5 +1,6 @@
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
+// require('dotenv').config();
 const pgp = require('pg-promise')();
 
 // const dbConfig = {
@@ -9,6 +10,8 @@ const pgp = require('pg-promise')();
 //   password: String(process.env.DB_PASSWORD || '')
 //   port: process.env.DB_PORT,
 // };
+
+console.log('PASSWORD', String(process.env.DB_PASSWORD))
 
 const dbConfig = {
   user: 'postgres',
@@ -22,8 +25,8 @@ const dbConfig = {
 const db = pgp(dbConfig);
 
 
-// db.one('SELECT NOW()')
-//   .then(data => console.log('Connected to DB:', data))
-//   .catch(error => console.error('Error connecting:', error));
+db.one('SELECT NOW()')
+  .then(data => console.log('Connected to DB:', data))
+  .catch(error => console.error('Error connecting:', error));
 
 module.exports = db;
