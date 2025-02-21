@@ -1,5 +1,5 @@
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '../../.env') });
+require('dotenv').config({ path: path.join(__dirname, '../../') });
 // require('dotenv').config();
 const pgp = require('pg-promise')();
 
@@ -11,11 +11,9 @@ const pgp = require('pg-promise')();
 //   port: process.env.DB_PORT,
 // };
 
-console.log('PASSWORD', String(process.env.DB_PASSWORD))
-
 const dbConfig = {
   user: 'postgres',
-  host: '34.222.11.57',
+  host: '35.86.119.79',
   database: 'reviews_db',
   password: String(process.env.DB_PASSWORD || ''),
   port: 5432,
