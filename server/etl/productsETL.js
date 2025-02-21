@@ -68,6 +68,7 @@ const insertToDatabase = async (batch) => {
 
     // query for ids that exist in db already
     const existingRows = await db.any('SELECT id FROM products WHERE id = ANY($1)', [Array.from(ids)]);
+    
     // make a set from query result
     const existingIds = new Set(existingRows.map(row => row.id));
 

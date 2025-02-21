@@ -5,7 +5,7 @@ const db = require('../database/db.js');
 const pgp = require('pg-promise')();
 
 let batch = [];
-const batchSize = 40000;
+const batchSize = 2000;
 
 const seedReviewPhotos = async () => {
   try {
@@ -16,6 +16,7 @@ const seedReviewPhotos = async () => {
 
     fileStream.pipe(csv({ separator: ',' }))
       .on('data', async (row) => {
+
         const parsedRow = {
           id: parseInt(row.id),
           review_id: parseInt(row.review_id),
