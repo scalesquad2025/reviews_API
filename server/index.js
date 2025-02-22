@@ -33,6 +33,7 @@ app.get('/reviews/:id', async (req, res) => {
   try {
     const query = `SELECT
     reviews.id as review_id,
+    reviews.product_id,
     reviews.rating,
     reviews.summary,
     reviews.recommend,
@@ -42,18 +43,40 @@ app.get('/reviews/:id', async (req, res) => {
     reviews.reviewer_name,
     reviews.reviewer_email,
     reviews.helpfulness,
-    review_photos.id as photo_id,
-    review_photos.url as photo_url
+    COALESCE(
+    json_agg(json_build_object('id', review_photos.id, 'url', review_photos.url))
+    FILTER(
+    WHERE review_photos.id IS NOT NULL), '[]'
+    ) AS photos
     FROM reviews
     LEFT JOIN review_photos
     ON reviews.id = review_photos.review_id
     WHERE reviews.product_id = $1
-    AND reviews.reported = FALSE`;
+    AND reviews.reported = FALSE
+    GROUP BY reviews.id`;
 
     const reviewRes = await db.any(query, [id]);
+
+    // console.log('REVRES', reviewRes[0].photos)
+
+    // const photos = {};
+    // for (let review of reviewRes) {
+    //   if (review.photo_url && review.photo_id) {
+    //     if (!photos[review.review_id]) {
+    //       photos[review.review_id] = [];
+    //     }
+
+    //     photos[review.review_id].push({
+    //       id: review.photo_id,
+    //       url: review.photo_url
+    //     })
+    //   }
+    // }
+
     const response = reviewRes.map(review => {
       return {
         id: review.id,
+        product_id: id,
         rating: review.rating,
         summary: review.summary,
         recommned: review.recommend,
@@ -63,10 +86,7 @@ app.get('/reviews/:id', async (req, res) => {
         reviewer_name: review.reviewer_name,
         reviewer_email: review.reviewer_email,
         helpfulness: review.helpfulness,
-        photos: {
-          id: review.photo_id,
-          url: review.photo_url
-        }
+        photos: review.photos
       }
     });
 
