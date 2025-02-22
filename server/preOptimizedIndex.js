@@ -31,60 +31,44 @@ app.get('/reviews/:id', async (req, res) => {
   const id = Number(req.params.id);
   if (!id) return res.status(400).send('ID required');
   try {
+    // const page = parseInt(req.query.page) || 1;
+    // const count = parseInt(req.query.count) || 5;
+    // const offset = (page - 1) * count;
+
     const query = `SELECT
-    reviews.id as review_id,
-    reviews.product_id,
-    reviews.rating,
-    reviews.summary,
-    reviews.recommend,
-    reviews.response,
-    reviews.body,
-    reviews.date,
-    reviews.reviewer_name,
-    reviews.reviewer_email,
-    reviews.helpfulness,
-    COALESCE(
-    json_agg(json_build_object('id', review_photos.id, 'url', review_photos.url))
-    FILTER(
-    WHERE review_photos.id IS NOT NULL), '[]'
-    ) AS photos
+    id as review_id,
+    rating,
+    summary,
+    recommend,
+    response,
+    body,
+    date,
+    reviewer_name,
+    helpfulness
     FROM reviews
-    LEFT JOIN review_photos
-    ON reviews.id = review_photos.review_id
-    WHERE reviews.product_id = $1
-    AND reviews.reported = FALSE
-    GROUP BY reviews.id`;
+    WHERE product_id = $1
+    AND reported = FALSE`;
 
     const reviewRes = await db.any(query, [id]);
+    const reviewsIds = reviewRes.map(review => review.review_id);
 
-    // const photos = {};
-    // for (let review of reviewRes) {
-    //   if (review.photo_url && review.photo_id) {
-    //     if (!photos[review.review_id]) {
-    //       photos[review.review_id] = [];
-    //     }
-
-    //     photos[review.review_id].push({
-    //       id: review.photo_id,
-    //       url: review.photo_url
-    //     })
-    //   }
-    // }
-
+    const photosQuery = `SELECT
+    id,
+    review_id,
+    url
+    FROM review_photos
+    WHERE review_id = ANY($1)
+    `
+    const photosRes = await db.any(photosQuery, [reviewsIds]);
     const response = reviewRes.map(review => {
       return {
-        id: review.id,
-        product_id: id,
-        rating: review.rating,
-        summary: review.summary,
-        recommned: review.recommend,
-        response: review.response,
-        body: review.body,
-        date: review.date,
-        reviewer_name: review.reviewer_name,
-        reviewer_email: review.reviewer_email,
-        helpfulness: review.helpfulness,
-        photos: review.photos
+        ...review,
+        photos: photosRes
+          .filter(photo => (photo.review_id === review.review_id))
+          .map(element => ({
+            id: element.id,
+            url: element.url
+          }))
       }
     });
 
