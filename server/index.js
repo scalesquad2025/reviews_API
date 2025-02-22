@@ -57,8 +57,6 @@ app.get('/reviews/:id', async (req, res) => {
 
     const reviewRes = await db.any(query, [id]);
 
-    // console.log('REVRES', reviewRes[0].photos)
-
     // const photos = {};
     // for (let review of reviewRes) {
     //   if (review.photo_url && review.photo_id) {
