@@ -1,14 +1,12 @@
-# Welcome to Grand Line Voyagers' Atelier Frontend Capstone Project.
+# Welcome to Scale Squad's Atelier System Design Capstone Project.
 
 ## Overview
-Atelier is a fully functional e-commerce web application that meets the specifications and requirements outlined by project stakeholders. 
+A scalable reviews API for managing product feedback with performance optimization and efficient data handling. This is the backend for Atelier project.
 
-## Frontend Architecture
-  - React
-  - Redux
-  - JavaScript
-  - HTML
-  - CSS
+## Backend Architecture
+  - Express
+  - PostgreSQL
+  - K6
 
 ## Atelier Setup
 1. Clone this repo: `git clone git@github.com:Grand-Line-Voyagers-FEC/Atelier.git`
@@ -16,28 +14,4 @@ Atelier is a fully functional e-commerce web application that meets the specific
 3. Create `.env` file based on example
 4. Run commands `npm run server-dev` and `npm run client-dev` in two separate terminals
 
-## Features 
-- Product Detail
-    - Image gallery 
-    - Product information
-    - Style selector
-    - Add to cart
-
-- Related Items & Outfit Creation
-   - Comparison view
-   - Related Products List
-   - Your Outfit List
-     
-- Questions & Answers
-  - View questions
-  - Search for a question
-  - Asking a question
-  - Answering a question
-
-- Ratings & Reviews
-  - Write a review
-  - Reviews List
-  - Sorting
-  - Rating Breakdown
-  - Product Breakdown
 
