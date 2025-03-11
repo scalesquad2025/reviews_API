@@ -8,7 +8,7 @@ A scalable reviews API for managing product feedback with performance optimizati
   - PostgreSQL
   - K6
 
-## Atelier Setup
+## Project Setup
 1. Clone this repo: `git clone git@github.com:Grand-Line-Voyagers-FEC/Atelier.git`
 2. Install dependencies: `npm install`
 3. Create `.env` file based on example
